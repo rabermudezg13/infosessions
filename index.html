@@ -11,12 +11,12 @@
   <style>
     :root {
       --kelly: #0ba14b;
-      --ivory: #f3f0e8;
-      --panel: #111412;
-      --panel-top: #171a18;
+      --ivory: #ffffff;
+      --panel: #151917;
+      --panel-top: #202522;
       --gap: clamp(2px, .42vw, 7px);
-      --cell-width: min(3.55vw, 5.65vh);
-      --cell-height: calc(var(--cell-width) * 1.42);
+      --cell-width: min(3.62vw, 6.05vh);
+      --cell-height: calc(var(--cell-width) * 1.34);
     }
 
     * { box-sizing: border-box; }
@@ -65,7 +65,7 @@
       position: relative;
       width: var(--cell-width);
       height: var(--cell-height);
-      border: 1px solid #272c29;
+      border: 1px solid #3b433e;
       border-radius: clamp(2px, .35vw, 6px);
       overflow: hidden;
       background: linear-gradient(to bottom, var(--panel-top) 0 49.5%, #090b0a 49.5% 50.5%, var(--panel) 50.5% 100%);
@@ -94,19 +94,23 @@
       display: grid;
       place-items: center;
       padding-top: .04em;
-      font-size: calc(var(--cell-width) * .78);
-      font-weight: 800;
+      font-size: calc(var(--cell-width) * .91);
+      font-weight: 900;
       font-stretch: condensed;
       line-height: 1;
       color: inherit;
-      text-shadow: 0 0 7px currentColor;
+      text-shadow: 0 0 5px currentColor, 0 1px 1px #000;
       transform-origin: center;
       backface-visibility: hidden;
     }
 
     .cell.flipping .glyph { animation: flap 65ms cubic-bezier(.5, 0, .45, 1); }
     .cell.flash { animation: settle-flash 180ms ease-out; }
-    .cell.kelly-final { color: var(--kelly); border-color: rgba(11,161,75,.48); }
+    .cell.brand-green {
+      color: #18d366;
+      border-color: rgba(24,211,102,.68);
+      box-shadow: 0 0 8px rgba(11,161,75,.22), inset 0 1px 0 rgba(255,255,255,.06);
+    }
 
     @keyframes flap {
       0% { transform: rotateX(0deg); filter: brightness(1.35); }
@@ -198,7 +202,7 @@
     }
 
     @media (orientation: portrait) {
-      :root { --cell-width: min(3.5vw, 4.8vh); --gap: clamp(1px, .32vw, 4px); }
+      :root { --cell-width: min(3.58vw, 5.1vh); --gap: clamp(1px, .28vw, 4px); }
       .app { padding-inline: 8px; }
       .status { width: 90vw; }
     }
@@ -241,11 +245,29 @@
       "NO PERSONAL ELECTRONIC DEVICES",
       "NO PHONES IPADS OR LAPTOPS",
       "NO SOCIAL MEDIA IN CLASS",
-      "NO PHOTOS OF THE CLASSROOM / EVEN WITH NO STUDENTS",
-      "DO NOT SHARE SOCIAL MEDIA / OR PERSONAL INFO WITH STUDENTS",
+      "NO CLASSROOM PHOTOS / EVEN WITHOUT STUDENTS",
+      "NO SOCIAL MEDIA SHARING / NO PERSONAL INFO TO KIDS",
       "NO JEANS NO CROCS",
       "NO EATING IN THE CLASSROOM",
-      "NEVER LEAVE THE CLASSROOM UNATTENDED"
+      "NEVER LEAVE THE CLASSROOM UNATTENDED",
+
+      // Substitute Teacher Accountability Notes. Los puntos extensos se presentan
+      // en varias pantallas consecutivas para mantener letras grandes y legibles.
+      "SUBSTITUTE TEACHER / ACCOUNTABILITY NOTES",
+      "1 REVIEW ASSIGNMENT / NOTES CAREFULLY",
+      "1 READ ROLE DETAILS / AND EXPECTATIONS",
+      "2 CONFIRM DIRECTIONS / BEFORE YOU BEGIN",
+      "2 FOLLOW ALL GUIDELINES / SUPPORT THE SCHOOL",
+      "3 CHECK ATTACHMENTS / BEFORE THE ASSIGNMENT",
+      "3 REVIEW LESSON PLANS / AND INSTRUCTIONS",
+      "4 REMAIN ONSITE / DURING LUNCH",
+      "4 PLAN AHEAD / BRING A PACKED LUNCH",
+      "5 DRESS PROFESSIONALLY / AT ALL TIMES",
+      "5 AVOID DISTRACTING / OR REVEALING ATTIRE",
+      "6 DO NOT EAT OR SHARE / TEACHER SNACKS CANDY",
+      "6 LEAVE ALL ITEMS / WHERE THEY ARE",
+      "7 CONFIRM THE LOCATION / BEFORE YOUR ASSIGNMENT",
+      "7 ARRIVE 15 MIN EARLY / CHECK IN AT MAIN OFFICE"
     ];
 
     const display = document.querySelector("#display");
@@ -367,14 +389,14 @@
       source.stop(now + .022);
     }
 
-    async function flipCell(index, finalChar, isKellyLine) {
+    async function flipCell(index, finalChar, useBrandGreen) {
       const { cell, glyph } = cells[index];
       let cursor = CHARSET.indexOf(currentChars[index]);
       if (cursor < 0) cursor = 0;
       const target = CHARSET.indexOf(finalChar);
       const steps = finalChar === currentChars[index] ? 0 : 4 + Math.floor(Math.random() * 6);
 
-      cell.classList.remove("kelly-final", "flash");
+      cell.classList.remove("brand-green", "flash");
       for (let step = 0; step < steps; step += 1) {
         cursor = (cursor + 1 + Math.floor(Math.random() * 3)) % CHARSET.length;
         glyph.textContent = CHARSET[cursor];
@@ -396,7 +418,7 @@
       cell.style.color = "";
       cell.style.borderColor = "";
       cell.style.boxShadow = "";
-      if (isKellyLine && finalChar !== " ") cell.classList.add("kelly-final");
+      if (useBrandGreen && finalChar !== " ") cell.classList.add("brand-green");
     }
 
     function showMessage(index) {
@@ -407,7 +429,14 @@
       counter.textContent = currentIndex === 0 ? "WELCOME" : `${currentIndex} / ${rules.length}`;
 
       target.forEach((char, i) => {
-        setTimeout(() => flipCell(i, char, message.welcome && i >= COLS), (i % COLS) * STAGGER_MS);
+        // En la bienvenida, KELLY queda blanco y EDUCATION usa el verde de marca.
+        // Se calcula la posición a partir de la línea centrada para no depender
+        // de números mágicos si el ancho cambia en el futuro.
+        const secondLine = center("KELLY EDUCATION");
+        const educationStart = secondLine.indexOf("EDUCATION");
+        const column = i % COLS;
+        const useBrandGreen = message.welcome && i >= COLS && column >= educationStart;
+        setTimeout(() => flipCell(i, char, useBrandGreen), (i % COLS) * STAGGER_MS);
       });
 
       carriedTime = 0;
