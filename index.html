@@ -14,9 +14,10 @@
       --ivory: #ffffff;
       --panel: #151917;
       --panel-top: #202522;
-      --gap: clamp(2px, .42vw, 7px);
-      --cell-width: min(3.62vw, 6.05vh);
-      --cell-height: calc(var(--cell-width) * 1.34);
+      --gap: clamp(2px, .18vw, 5px);
+      /* Usa casi todo el ancho: 24 módulos + separaciones. */
+      --cell-width: min(3.78vw, 8.4vh);
+      --cell-height: calc(var(--cell-width) * 1.52);
     }
 
     * { box-sizing: border-box; }
@@ -49,7 +50,7 @@
       display: grid;
       grid-template-rows: 1fr auto;
       place-items: center;
-      padding: max(24px, env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
+      padding: max(12px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
     }
 
     .display {
@@ -118,10 +119,13 @@
       display: grid;
       place-items: center;
       padding-top: .04em;
-      font-size: calc(var(--cell-width) * .91);
+      font-family: "Arial Narrow", "Roboto Condensed", "Aptos Narrow", "SFMono-Condensed", "Courier New", monospace;
+      font-size: calc(var(--cell-width) * 1.18);
       font-weight: 900;
       font-stretch: condensed;
-      line-height: 1;
+      line-height: .92;
+      letter-spacing: -.09em;
+      transform: scaleX(.78);
       color: inherit;
       text-shadow: 0 0 5px currentColor, 0 1px 1px #000;
       backface-visibility: hidden;
@@ -265,10 +269,27 @@
       cursor: pointer;
     }
 
+    /* En televisores Full HD y 4K las letras crecen con el ancho real de la pantalla. */
+    @media (min-width: 1400px) and (orientation: landscape) {
+      :root {
+        --cell-width: 3.82vw;
+        --cell-height: calc(var(--cell-width) * 1.58);
+        --gap: .13vw;
+      }
+      .glyph {
+        font-size: calc(var(--cell-width) * 1.24);
+        transform: scaleX(.75);
+        text-shadow: 0 0 7px currentColor, 0 2px 2px #000;
+      }
+      .cell { border-width: 2px; }
+      .status { width: 94vw; }
+    }
+
     @media (orientation: portrait) {
-      :root { --cell-width: min(3.58vw, 5.1vh); --gap: clamp(1px, .28vw, 4px); }
-      .app { padding-inline: 8px; }
-      .status { width: 90vw; }
+      :root { --cell-width: min(3.7vw, 6.2vh); --gap: clamp(1px, .18vw, 3px); }
+      .app { padding-inline: 5px; }
+      .glyph { font-size: calc(var(--cell-width) * 1.12); }
+      .status { width: 94vw; }
     }
 
     @media (prefers-reduced-motion: reduce) {
