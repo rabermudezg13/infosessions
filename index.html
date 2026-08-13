@@ -48,7 +48,7 @@
       width: 100%;
       min-height: 100%;
       display: grid;
-      grid-template-rows: 1fr auto;
+      grid-template-rows: 1fr auto auto;
       place-items: center;
       padding: max(12px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
     }
@@ -192,8 +192,31 @@
       100% { background: transparent; }
     }
 
+    .note {
+      width: min(94vw, 1500px);
+      min-height: 3em;
+      display: grid;
+      place-items: center;
+      padding: 0 2vw;
+      color: #b8c2bc;
+      text-align: center;
+      font-size: clamp(15px, 1.32vw, 28px);
+      font-weight: 600;
+      line-height: 1.38;
+      letter-spacing: .015em;
+      text-wrap: balance;
+      text-shadow: 0 2px 3px #000;
+      opacity: 1;
+      transition: opacity 220ms ease, transform 220ms ease;
+    }
+
+    .note.changing {
+      opacity: 0;
+      transform: translateY(5px);
+    }
+
     .status {
-      width: min(88vw, 980px);
+      width: min(94vw, 1500px);
       align-self: end;
       padding-bottom: max(2px, env(safe-area-inset-bottom));
       opacity: .78;
@@ -282,7 +305,8 @@
         text-shadow: 0 0 7px currentColor, 0 2px 2px #000;
       }
       .cell { border-width: 2px; }
-      .status { width: 94vw; }
+      .status, .note { width: 96vw; }
+      .note { font-size: clamp(20px, 1.38vw, 30px); }
     }
 
     @media (orientation: portrait) {
@@ -300,6 +324,7 @@
 <body>
   <main class="app" aria-label="Kelly Education information session display">
     <section id="display" class="display" aria-live="polite" aria-label="Current orientation message"></section>
+    <div id="note" class="note" aria-live="polite"></div>
     <footer class="status">
       <div class="status-row">
         <span id="paused" class="paused">PAUSED</span>
@@ -325,37 +350,30 @@
 
     const welcome = { lines: ["WELCOME ABOARD", "KELLY EDUCATION"], duration: 8000, welcome: true };
     const rules = [
-      "ARRIVE ON TIME",
-      "DRESS CODE / BUSINESS PROFESSIONAL",
-      "NO PERSONAL ELECTRONIC DEVICES",
-      "NO PHONES IPADS OR LAPTOPS",
-      "NO SOCIAL MEDIA IN CLASS",
-      "NO CLASSROOM PHOTOS / EVEN WITHOUT STUDENTS",
-      "NO SOCIAL MEDIA SHARING / NO PERSONAL INFO TO KIDS",
-      "NO JEANS NO CROCS",
-      "NO EATING IN THE CLASSROOM",
-      "NEVER LEAVE THE CLASSROOM UNATTENDED",
+      { text: "ARRIVE ON TIME" },
+      { text: "DRESS CODE / BUSINESS PROFESSIONAL" },
+      { text: "NO PERSONAL / ELECTRONIC DEVICES" },
+      { text: "NO PHONES IPADS / OR LAPTOPS" },
+      { text: "NO SOCIAL MEDIA / IN CLASS" },
+      { text: "NO PHOTOS OF / THE CLASSROOM", note: "No classroom photos — even when no students are present." },
+      { text: "DO NOT SHARE / SOCIAL MEDIA", note: "Never share social media or personal information with students." },
+      { text: "NO JEANS NO CROCS" },
+      { text: "NO EATING / IN THE CLASSROOM" },
+      { text: "NEVER LEAVE / THE CLASSROOM", note: "Never leave the classroom unattended." },
 
-      // Substitute Teacher Accountability Notes. Los puntos extensos se presentan
-      // en varias pantallas consecutivas para mantener letras grandes y legibles.
-      "SUBSTITUTE TEACHER / ACCOUNTABILITY NOTES",
-      "1 REVIEW ASSIGNMENT / NOTES CAREFULLY",
-      "1 READ ROLE DETAILS / AND EXPECTATIONS",
-      "2 CONFIRM DIRECTIONS / BEFORE YOU BEGIN",
-      "2 FOLLOW ALL GUIDELINES / SUPPORT THE SCHOOL",
-      "3 CHECK ATTACHMENTS / BEFORE THE ASSIGNMENT",
-      "3 REVIEW LESSON PLANS / AND INSTRUCTIONS",
-      "4 REMAIN ONSITE / DURING LUNCH",
-      "4 PLAN AHEAD / BRING A PACKED LUNCH",
-      "5 DRESS PROFESSIONALLY / AT ALL TIMES",
-      "5 AVOID DISTRACTING / OR REVEALING ATTIRE",
-      "6 DO NOT EAT OR SHARE / TEACHER SNACKS CANDY",
-      "6 LEAVE ALL ITEMS / WHERE THEY ARE",
-      "7 CONFIRM THE LOCATION / BEFORE YOUR ASSIGNMENT",
-      "7 ARRIVE 15 MIN EARLY / CHECK IN AT MAIN OFFICE"
+      // Substitute Teacher Accountability Notes: título grande arriba
+      // y la instrucción completa debajo para conservar legibilidad y contexto.
+      { text: "READ THE / ASSIGNMENT NOTES", note: "Review all assignment notes carefully. They may contain important details and expectations specific to the role or classroom." },
+      { text: "CONFIRM AND FOLLOW / THE DIRECTIONS", note: "Confirm that you understand the directions, then follow them to support the students and the school." },
+      { text: "CHECK FOR / ATTACHMENTS", note: "Attachments may contain your lesson plan or additional instructions. Review them before the assignment begins." },
+      { text: "REMAIN ONSITE / DURING LUNCH", note: "Substitute teachers may not leave the building for lunch. Plan ahead and bring a packed lunch." },
+      { text: "MAINTAIN / PROFESSIONAL ATTIRE", note: "Dress professionally and avoid attire that could draw unnecessary attention or distract students." },
+      { text: "DO NOT TAKE / DESK SNACKS", note: "Do not eat or distribute snacks or candy from the teacher's desk. Leave all items where they are." },
+      { text: "ARRIVE 15 MINUTES / EARLY", note: "Confirm the exact assignment location, allow time to park and check in with the sub coordinator or main office." }
     ];
 
     const display = document.querySelector("#display");
+    const note = document.querySelector("#note");
     const progress = document.querySelector("#progress");
     const counter = document.querySelector("#counter");
     const pausedLabel = document.querySelector("#paused");
@@ -364,7 +382,7 @@
     const startButton = document.querySelector("#start");
 
     const cells = [];
-    let currentIndex = 0; // 0 = bienvenida; 1..10 = reglas.
+    let currentIndex = 0; // 0 = bienvenida; 1..17 = reglas y notas.
     let currentChars = Array(COLS * ROWS).fill(" ");
     let startedAt = performance.now();
     let carriedTime = 0;
@@ -453,14 +471,15 @@
 
     function messageAt(index) {
       if (index === 0) return welcome;
-      const raw = rules[index - 1];
+      const item = rules[index - 1];
+      const raw = item.text;
       const lines = raw.includes("/") ? raw.split("/").map(part => part.trim()) : wrapTwoLines(raw);
 
       // Si una división explícita supera 24 caracteres, se redistribuye por palabras.
       if (lines.some(line => line.length > COLS)) {
-        return { lines: wrapTwoLines(raw.replace("/", " ")), duration: 7000, welcome: false };
+        return { lines: wrapTwoLines(raw.replace("/", " ")), note: item.note || "", duration: 7000, welcome: false };
       }
-      return { lines, duration: 7000, welcome: false };
+      return { lines, note: item.note || "", duration: 7000, welcome: false };
     }
 
     function buildTarget(message) {
@@ -555,7 +574,12 @@
       currentIndex = (index + rules.length + 1) % (rules.length + 1);
       const message = messageAt(currentIndex);
       const target = buildTarget(message);
-      display.setAttribute("aria-label", message.lines.join(". "));
+      display.setAttribute("aria-label", [message.lines.join(". "), message.note || ""].filter(Boolean).join(". "));
+      note.classList.add("changing");
+      setTimeout(() => {
+        note.textContent = message.note || "";
+        note.classList.remove("changing");
+      }, 220);
       counter.textContent = currentIndex === 0 ? "WELCOME" : `${currentIndex} / ${rules.length}`;
 
       target.forEach((char, i) => {
