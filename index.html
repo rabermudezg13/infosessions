@@ -385,6 +385,8 @@
       { text: "JEANS AND CROCS / ARE NOT PERMITTED", note: "Follow the required business-professional dress code for every assignment." },
       { text: "NO EATING / IN THE CLASSROOM", note: "Please eat only in designated areas and at approved times." },
       { text: "SUPERVISE STUDENTS / AT ALL TIMES", note: "Never leave students or the classroom unattended under any circumstances." },
+      { text: "BRING A POSITIVE / ATTITUDE", note: "Approach every assignment with optimism, flexibility, and a solution-focused mindset. Your attitude helps create a welcoming learning environment." },
+      { text: "SHARE A SMILE / MAKE A DIFFERENCE", note: "A warm, genuine smile helps students feel welcomed, supported, and ready to learn. Your positive presence can make a lasting difference." },
 
       // Substitute Teacher Accountability Notes: títulos institucionales arriba
       // y explicaciones completas debajo para conservar claridad y contexto.
@@ -407,7 +409,7 @@
     const startButton = document.querySelector("#start");
 
     const cells = [];
-    let currentIndex = 0; // 0 = bienvenida; 1..17 = reglas y notas.
+    let currentIndex = 0; // 0 = bienvenida; 1..19 = reglas y notas.
     let currentChars = Array(COLS * ROWS).fill(" ");
     let startedAt = performance.now();
     let carriedTime = 0;
