@@ -375,26 +375,26 @@
 
     const welcome = { lines: ["WELCOME ABOARD", "KELLY EDUCATION"], duration: 8000, welcome: true };
     const rules = [
-      { text: "ARRIVE ON TIME" },
-      { text: "DRESS CODE / BUSINESS PROFESSIONAL" },
-      { text: "NO PERSONAL / ELECTRONIC DEVICES" },
-      { text: "NO PHONES IPADS / OR LAPTOPS" },
-      { text: "NO SOCIAL MEDIA / IN CLASS" },
-      { text: "NO PHOTOS OF / THE CLASSROOM", note: "No classroom photos — even when no students are present." },
-      { text: "DO NOT SHARE / SOCIAL MEDIA", note: "Never share social media or personal information with students." },
-      { text: "NO JEANS NO CROCS" },
-      { text: "NO EATING / IN THE CLASSROOM" },
-      { text: "NEVER LEAVE / THE CLASSROOM", note: "Never leave the classroom unattended." },
+      { text: "PUNCTUALITY IS / ESSENTIAL", note: "Please arrive on time and be fully prepared to begin your assignment as scheduled." },
+      { text: "PROFESSIONAL ATTIRE / IS REQUIRED", note: "Maintain a professional appearance that reflects Kelly Education and supports a respectful learning environment." },
+      { text: "PERSONAL DEVICES / ARE NOT PERMITTED", note: "Personal electronic devices must remain stored away during instructional time." },
+      { text: "PHONES TABLETS / LAPTOPS PROHIBITED", note: "Phones, tablets, and personal laptops may not be used in the classroom." },
+      { text: "SOCIAL MEDIA USE / IS PROHIBITED", note: "Do not access, post, or engage with social media while supervising students." },
+      { text: "CLASSROOM PHOTOS / STRICTLY PROHIBITED", note: "Never photograph or record a classroom, even when no students are present." },
+      { text: "PROTECT STUDENT / PRIVACY", note: "Never share personal information or social media accounts with students." },
+      { text: "JEANS AND CROCS / ARE NOT PERMITTED", note: "Follow the required business-professional dress code for every assignment." },
+      { text: "NO EATING / IN THE CLASSROOM", note: "Please eat only in designated areas and at approved times." },
+      { text: "SUPERVISE STUDENTS / AT ALL TIMES", note: "Never leave students or the classroom unattended under any circumstances." },
 
-      // Substitute Teacher Accountability Notes: título grande arriba
-      // y la instrucción completa debajo para conservar legibilidad y contexto.
-      { text: "READ THE / ASSIGNMENT NOTES", note: "Review all assignment notes carefully. They may contain important details and expectations specific to the role or classroom." },
-      { text: "CONFIRM AND FOLLOW / THE DIRECTIONS", note: "Confirm that you understand the directions, then follow them to support the students and the school." },
-      { text: "CHECK FOR / ATTACHMENTS", note: "Attachments may contain your lesson plan or additional instructions. Review them before the assignment begins." },
-      { text: "REMAIN ONSITE / DURING LUNCH", note: "Substitute teachers may not leave the building for lunch. Plan ahead and bring a packed lunch." },
-      { text: "MAINTAIN / PROFESSIONAL ATTIRE", note: "Dress professionally and avoid attire that could draw unnecessary attention or distract students." },
-      { text: "DO NOT TAKE / DESK SNACKS", note: "Do not eat or distribute snacks or candy from the teacher's desk. Leave all items where they are." },
-      { text: "ARRIVE 15 MINUTES / EARLY", note: "Confirm the exact assignment location, allow time to park and check in with the sub coordinator or main office." }
+      // Substitute Teacher Accountability Notes: títulos institucionales arriba
+      // y explicaciones completas debajo para conservar claridad y contexto.
+      { text: "REVIEW ALL / ASSIGNMENT NOTES", note: "Carefully review every assignment note. It may include expectations and important details specific to the school, classroom, or role." },
+      { text: "FOLLOW ALL / ASSIGNMENT DIRECTIONS", note: "Confirm that you understand all instructions and follow them consistently to support students and school staff." },
+      { text: "REVIEW ALL / ATTACHMENTS", note: "Attachments may include lesson plans or additional instructions. Review all materials before the assignment begins." },
+      { text: "REMAIN ONSITE / DURING LUNCH", note: "Substitute teachers must remain in the building during lunch. Please plan ahead and bring a packed lunch." },
+      { text: "MAINTAIN / PROFESSIONAL CONDUCT", note: "Demonstrate professional judgment, respectful communication, and appropriate behavior throughout the school day." },
+      { text: "RESPECT PERSONAL / PROPERTY", note: "Do not consume or distribute food, candy, or other items found on the teacher's desk. Leave all personal property undisturbed." },
+      { text: "ARRIVE 15 MINUTES / BEFORE START TIME", note: "Confirm the assignment location in advance, allow time for parking, and check in with the substitute coordinator or main office." }
     ];
 
     const display = document.querySelector("#display");
@@ -502,9 +502,9 @@
 
       // Si una división explícita supera 24 caracteres, se redistribuye por palabras.
       if (lines.some(line => line.length > COLS)) {
-        return { lines: wrapTwoLines(raw.replace("/", " ")), note: item.note || "", duration: 7000, welcome: false };
+        return { lines: wrapTwoLines(raw.replace("/", " ")), note: item.note || "", duration: item.note ? 10000 : 7000, welcome: false };
       }
-      return { lines, note: item.note || "", duration: 7000, welcome: false };
+      return { lines, note: item.note || "", duration: item.note ? 10000 : 7000, welcome: false };
     }
 
     function buildTarget(message) {
